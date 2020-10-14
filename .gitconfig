@@ -1,0 +1,6 @@
+[user]
+	name = José Ramón Aguilar
+	email = jraguilar@knowit.mx
+[core]
+	editor = code --wait
+
