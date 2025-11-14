@@ -1,6 +1,6 @@
 ﻿if($PSEdition -eq 'Desktop') { $Global:IsWindows = $true }
 if(!$env:Docs) {
-    $env:Docs = $IsWindows ? [Environment]::GetFolderPath('MyDocuments') : "$HOME/Docs"
+    $env:Docs = if($IsWindows) { [Environment]::GetFolderPath('MyDocuments') } else { "$HOME/Docs" }
 }
 $Global:IsWindowsTerminal = [bool]($env:WT_SESSION)
 
@@ -9,6 +9,54 @@ New-PSDrive -Root $HOME\repos -Name 'GIT' -PSProvider FileSystem | Out-Null
 
 $PSDefaultParameterValues['Install-Module:Repository'] = 'PSGallery'
 $PSDefaultParameterValues['Invoke-Pester:Output'] = 'Detailed'
+
+#region === Alias y funciones para mi comodidad
+
+New-Alias gazc Get-AzContext
+New-Alias ib Invoke-Build
+New-Alias ip Invoke-Pester
+
+if($env:TERM_PROGRAM -eq 'vscode') {
+    Import-Module posh-git
+    Invoke-Build.ArgumentCompleters.ps1
+}
+
+if($IsWindows) {
+    function ln ([string]$TargetPath, [string]$LinkPath, [switch]$Symbolic, [switch]$Force)
+    {
+        $ErrorActionPreference = 'Stop'
+
+        if(!$TargetPath) { Write-Error '"-TargetPath" parameter is required.' }
+        if(!$LinkPath) { $LinkPath = Split-Path $TargetPath -Leaf }
+        $linkType =
+            if($Symbolic)
+                { 'SymbolicLink' }
+            elseif(Test-Path $TargetPath -PathType Container)
+                { 'Junction' }
+            else
+                { 'HardLink' }
+
+        if(!$Symbolic) {
+            $TargetPath = (Resolve-Path $TargetPath).Path
+        }
+        New-Item -ItemType $linkType -Path $LinkPath -Value $TargetPath -Force:$Force
+    }
+}
+
+function nd ($FolderName)
+{
+    New-Item -ItemType Directory $FolderName
+    Set-Location $FolderName
+}
+
+function Get-CmdletAlias ($CmdletName)
+{
+    Get-Alias | Where-Object { $_.Definition -like "*$CmdletName*" } |
+    Format-Table Definition, Name -AutoSize
+}
+
+#endregion
+
 
 #region === PSReadLine ===
 
@@ -45,6 +93,34 @@ Set-PSReadLineKeyHandler -Key 'Alt+f','Ctrl+LeftArrow' -Function ShellBackwardWo
 Set-PSReadLineKeyHandler -Key 'Alt+g','Ctrl+RightArrow' -Function ShellForwardWord
 Set-PSReadLineKeyHandler -Key 'Alt+D' -Function KillLine
 Set-PSReadLineKeyHandler -Key 'Alt+c' -Function ClearScreen
+
+# Sometimes you want to get a property of invoke a member on what you've entered so far
+# but you need parens to do that.  This binding will help by putting parens around the current selection,
+# or if nothing is selected, the whole line.
+Set-PSReadLineKeyHandler -Key 'Alt+(' `
+                         -BriefDescription ParenthesizeSelection `
+                         -LongDescription "Put parenthesis around the selection or entire line and move the cursor to after the closing parenthesis" `
+                         -ScriptBlock {
+    param($key, $arg)
+
+    $selectionStart = $null
+    $selectionLength = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetSelectionState([ref]$selectionStart, [ref]$selectionLength)
+
+    $line = $null
+    $cursor = $null
+    [Microsoft.PowerShell.PSConsoleReadLine]::GetBufferState([ref]$line, [ref]$cursor)
+    if ($selectionStart -ne -1)
+    {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Replace($selectionStart, $selectionLength, '(' + $line.SubString($selectionStart, $selectionLength) + ')')
+        [Microsoft.PowerShell.PSConsoleReadLine]::SetCursorPosition($selectionStart + $selectionLength + 2)
+    }
+    else
+    {
+        [Microsoft.PowerShell.PSConsoleReadLine]::Replace(0, $line.Length, '(' + $line + ')')
+        [Microsoft.PowerShell.PSConsoleReadLine]::EndOfLine()
+    }
+}
 
 # Set-PSReadLineKeyHandler -Key 'Tab' -ScriptBlock {
 #     param($key, $arg)
@@ -105,55 +181,6 @@ Set-PSReadLineKeyHandler -Key 'Alt+c' -Function ClearScreen
 
 #endregion
 
-#region === Alias y funciones para mi comodidad
-
-New-Alias gazc Get-AzContext
-New-Alias ib Invoke-Build
-New-Alias ip Invoke-Pester
-New-Alias fm far
-
-if($env:TERM_PROGRAM -eq 'vscode') {
-    Invoke-Build.ArgumentCompleters.ps1
-}
-
-if($IsWindows) {
-    function ln ($TargetPath, $LinkPath, [switch]$Symbolic, [switch]$Force)
-    {
-        $ErrorActionPreference = 'Stop'
-
-        $linkType =
-            if($Symbolic)
-                { 'SymbolicLink' }
-            elseif(Test-Path $TargetPath -PathType Container)
-                { 'Junction' }
-            else
-                { 'HardLink' }
-
-        if(!$Symbolic) {
-            $TargetPath = (Resolve-Path $TargetPath).Path
-        }
-        New-Item -ItemType $linkType -Path $LinkPath -Value $TargetPath -Force:$Force
-    }
-}
-
-function nd ($FolderName)
-{
-    New-Item -ItemType Directory $FolderName
-    Set-Location $FolderName
-}
-
-function far
-{
-    & 'C:\Program Files\Far Manager\Far.exe' .
-}
-
-function Get-CmdletAlias ($CmdletName)
-{
-    Get-Alias | Where-Object { $_.Definition -like "*$CmdletName*" } |
-    Format-Table Definition, Name -AutoSize
-}
-
-#endregion
 
 #region === Argument Completers ===
 
