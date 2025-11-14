@@ -3,4 +3,4 @@
 	email = jraguilar@knowit.mx
 [core]
 	editor = code --wait
-
+	symlinks = true
