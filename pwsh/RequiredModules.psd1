@@ -1,4 +1,6 @@
 @{
+    'PSReadLine' = @{}
+
     'posh-git' = @{
         Version = '[1.1.0,]'
     }
