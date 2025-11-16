@@ -1,9 +1,14 @@
-﻿if($PSEdition -eq 'Desktop') { $Global:IsWindows = $true }
+﻿$Global:IsWindowsTerminal = [bool]($env:WT_SESSION)
+
+if($PSEdition -eq 'Desktop') { $Global:IsWindows = $true }
 if(!$env:Docs) {
     $env:Docs = if($IsWindows) { [Environment]::GetFolderPath('MyDocuments') } else { "$HOME/Docs" }
 }
-$Global:IsWindowsTerminal = [bool]($env:WT_SESSION)
 
+$scriptsFolder = if($IsWindows) { "$env:Docs\PowerShell\Scripts"} else { "$HOME/.local/share/powershell/Scripts" }
+if(!$env:PATH.Contains($scriptsFolder)) {
+    $env:PATH = $scriptsFolder + [IO.Path]::PathSeparator + $env:PATH
+}
 # New-PSDrive -Root $HOME\repos -Name 'GIT' -PSProvider FileSystem | Out-Null
 # New-PSDrive -Root $HOME\DRIVE -Name 'OneDrive' -PSProvider FileSystem | Out-Null
 
@@ -217,7 +222,7 @@ if(Get-Command gh -ErrorAction Ignore) {
     Invoke-Expression -Command $(gh completion -s powershell | Out-String)
 }
 
-# Azure CLI
+# # Azure CLI
 Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
     param($commandName, $wordToComplete, $cursorPosition)
     $completion_file = New-TemporaryFile
