@@ -4,7 +4,7 @@ if(!$env:Docs) {
 }
 $Global:IsWindowsTerminal = [bool]($env:WT_SESSION)
 
-New-PSDrive -Root $HOME\repos -Name 'GIT' -PSProvider FileSystem | Out-Null
+# New-PSDrive -Root $HOME\repos -Name 'GIT' -PSProvider FileSystem | Out-Null
 # New-PSDrive -Root $HOME\DRIVE -Name 'OneDrive' -PSProvider FileSystem | Out-Null
 
 $PSDefaultParameterValues['Install-Module:Repository'] = 'PSGallery'
