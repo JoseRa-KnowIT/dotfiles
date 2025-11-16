@@ -7,10 +7,15 @@ $Global:IsWindowsTerminal = [bool]($env:WT_SESSION)
 # New-PSDrive -Root $HOME\repos -Name 'GIT' -PSProvider FileSystem | Out-Null
 # New-PSDrive -Root $HOME\DRIVE -Name 'OneDrive' -PSProvider FileSystem | Out-Null
 
-$PSDefaultParameterValues['Install-Module:Repository'] = 'PSGallery'
-$PSDefaultParameterValues['Invoke-Pester:Output'] = 'Detailed'
+$null = Start-ThreadJob -Name 'Pull dotfiles repo' {
+    Push-Location $HOME/dotfiles
+    git pull
+}
 
 #region === Alias y funciones para mi comodidad
+
+$PSDefaultParameterValues['Install-Module:Repository'] = 'PSGallery'
+$PSDefaultParameterValues['Invoke-Pester:Output'] = 'Detailed'
 
 New-Alias gazc Get-AzContext
 New-Alias ib Invoke-Build
@@ -244,4 +249,4 @@ Register-ArgumentCompleter -Native -CommandName az -ScriptBlock {
 
 #endregion
 
-
+# Pop-Location
