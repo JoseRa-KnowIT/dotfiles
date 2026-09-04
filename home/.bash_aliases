@@ -1,7 +1,7 @@
 alias cls='clear'
-alias dir='ls -alF'
-alias ll='ls -lF'
-alias la='ls -AF'
+alias dir='ls -al'
+alias ll='ls -l'
+alias la='ls -A'
 alias del='rm'
 alias md='mkdir'
 
