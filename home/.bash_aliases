@@ -3,7 +3,7 @@ alias dir='ls -al'
 alias ll='ls -l'
 alias la='ls -A'
 alias del='rm'
-alias md='mkdir'
+alias md='mkdir -p'
 
 alias ..='cd ..'
 alias ...='cd ../..'

@@ -13,6 +13,6 @@ else {
     Write-Host "Profile file created succesfully '$file'`n" -Foreground Blue
 }
 
-Import-Module Microsoft.PowerShell.PSResourceGet
+Get-PSResourceRepository
 Set-PSResourceRepository PSGallery -Trusted
-Install-PSResource -RequiredResourceFile $PSScriptRoot/RequiredModules.psd1
+Install-PSResource -RequiredResourceFile $PSScriptRoot/pwsh/RequiredModules.psd1
