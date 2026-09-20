@@ -37,7 +37,7 @@ hl.config({
 hl.config({
   layout = {
     -- Avoid overly wide single-window layouts on wide screens.
-    single_window_aspect_ratio = { 20, 10 },
+    single_window_aspect_ratio = { 16, 10 },
     single_window_aspect_ratio_tolerance = 0.05,
   },
 })

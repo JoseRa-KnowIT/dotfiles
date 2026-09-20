@@ -21,12 +21,24 @@
 -- o.bind("SUPER + SPACE", "Omarchy menu", "omarchy-menu toggle root")
 
 o.bind("SUPER + Q", "Close window", hl.dsp.window.close())
+o.bind("SUPER + TAB", "Next window in group", hl.dsp.group.next())
+o.bind("SUPER + SHIFT + TAB", "Previous window in group", hl.dsp.group.prev())
+o.bind("SUPER + A", "Toggle window grouping", hl.dsp.group.toggle())
+o.bind("SUPER + ALT + A", "Move active window out of group", hl.dsp.window.move({ out_of_group = true }))
 
 -- Disable a default binding without replacing it.
+-- hl.unbind("SUPER + SHIFT + G")
+-- o.bind("SUPER + SHIFT + G", "Toggle window grouping", hl.dsp.group.toggle())
+
 hl.unbind("SUPER + SHIFT + RETURN")
 o.bind("SUPER + SHIFT + RETURN", "Terminal", { omarchy = "terminal bash" })
--- hl.unbind("SUPER + CTRL + LEFT")
--- hl.unbind("SUPER + CTRL + RIGHT")
+
+hl.unbind("SUPER + F")
+o.bind("SUPER + F", "Full width", hl.dsp.window.fullscreen({ mode = "maximized" }))
+
+hl.unbind("SUPER + ALT + F")
+o.bind("SUPER + ALT +F", "Full screen", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
+-- o.bind("SUPER + CTRL + F", "Tiled full screen", "omarchy-hyprland-window-tiled-fullscreen-toggle")
 
 -- Logitech MX Keys examples:
 -- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
